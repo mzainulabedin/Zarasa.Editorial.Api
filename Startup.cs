@@ -45,23 +45,26 @@ namespace Zarasa.Editorial.Api
                 IssuerSigningKey = signingKey,
 
                 // Validate the JWT Issuer (iss) claim
-                ValidateIssuer = true,
-                ValidIssuer = Configuration["JWTSettings:Issuer"],
+                ValidateIssuer = false,
+                // ValidIssuer = Configuration["JWTSettings:Issuer"],
 
                 // Validate the JWT Audience (aud) claim
-                ValidateAudience = true,
-                ValidAudience = Configuration["JWTSettings:Audience"]
+                ValidateAudience = false,
+                // ValidAudience = Configuration["JWTSettings:Audience"]
             };
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                
 
             }).AddJwtBearer(options =>
             {
                 // options.ClaimsIssuer = Configuration["JWTSettings:Issuer"];
                 // options.Audience = Configuration["JWTSettings:Audience"];
                 options.TokenValidationParameters = tokenValidationParameters;
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
             });
             
         }

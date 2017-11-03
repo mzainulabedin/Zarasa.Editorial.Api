@@ -1,10 +1,10 @@
+using System.Linq;
 using System.Collections.Generic;
 using Zarasa.Editorial.Api.Common.Responses;
 using Zarasa.Editorial.Api.Common.Validation;
 using Zarasa.Editorial.Api.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace Zarasa.Editorial.Api.Controllers
 {
@@ -34,6 +34,15 @@ namespace Zarasa.Editorial.Api.Controllers
 
         protected ObjectResponseResult ObjectResponse(object data, string message){
             return new ObjectResponseResult(data, message);
+        }
+
+        protected string GetCurrentUserId()
+        {
+            string id = null;
+            if(HttpContext != null && HttpContext.User != null && HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated){
+                id = HttpContext.User.Claims.ToList().Find(x => x.Type == "id").Value;
+            }
+            return id;
         }
     }
 }

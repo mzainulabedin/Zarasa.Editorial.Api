@@ -11,9 +11,11 @@ using Zarasa.Editorial.Api.Data;
 using Zarasa.Editorial.Api.Common.Responses;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Zarasa.Editorial.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     public class UserController : EntityController<User>
     {
@@ -22,6 +24,8 @@ namespace Zarasa.Editorial.Api.Controllers
         public UserController(ApplicationDbContext context)
         {
             _context = context;
+            
+            // var userId = httpContextAccessor.HttpContext.Request.Headers// .User.FindFirst(ClaimTypes.NameIdentifier).Value 
 
             // if (_context.Users.Count() == 0)
             // {
@@ -29,7 +33,6 @@ namespace Zarasa.Editorial.Api.Controllers
             //     _context.SaveChanges();
             // }
         }  
-        [AllowAnonymous]
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -37,7 +40,6 @@ namespace Zarasa.Editorial.Api.Controllers
             return EntityListResponse(users);
         }
 
-        [Authorize]
         [HttpGet("{id}", Name = "Get")]
         public IActionResult GetById(long id)
         {
@@ -64,6 +66,8 @@ namespace Zarasa.Editorial.Api.Controllers
             {
                 return ValidationFailed("email", "Email can not be duplicate");
             }
+
+            user.created_by = long.Parse(GetCurrentUserId());
 
             _context.Users.Add(user);
             _context.SaveChanges();
@@ -96,12 +100,14 @@ namespace Zarasa.Editorial.Api.Controllers
             existingUser.email=user.email;
             existingUser.is_active = user.is_active;
             existingUser.updated_at = DateTime.UtcNow;
+            existingUser.updated_by = long.Parse(GetCurrentUserId());
             _context.Users.Update(existingUser);
             _context.SaveChanges();
 
             return EntityResponse(existingUser, "Record Updated Successfully.");
         }
 
+        
         [HttpDelete("{id}")]
         public IActionResult Delete(long id)
         {
