@@ -4,6 +4,7 @@ using Zarasa.Editorial.Api.Common.Validation;
 using Zarasa.Editorial.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Http;
 
 namespace Zarasa.Editorial.Api.Controllers
 {
@@ -25,6 +26,14 @@ namespace Zarasa.Editorial.Api.Controllers
 
         protected EntityResponseResult<T> EntityListResponse(IEnumerable<T> data, string message = "Record fetched successfully.", int pageNumber = 0, int pageSize = 0, long totalRecords = 0){
              return new EntityResponseResult<T>(data, message);
+        }
+
+        protected ErrorResponseResult ErrorResponse(string errorMessage, int statusCode = StatusCodes.Status400BadRequest){
+            return new ErrorResponseResult(errorMessage, statusCode);
+        }
+
+        protected ObjectResponseResult ObjectResponse(object data, string message){
+            return new ObjectResponseResult(data, message);
         }
     }
 }

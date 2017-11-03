@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Zarasa.Editorial.Api.Common.Responses
 {
-    public class EntityResponseResult<T> : ObjectResult where T : Entity
+    public class EntityResponseResult<T> : ObjectResponseResult where T : Entity
     {
         
         public EntityResponseResult(T data, string message)

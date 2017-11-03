@@ -37,7 +37,7 @@ namespace Zarasa.Editorial.Api.Controllers
             return EntityListResponse(users);
         }
 
-        // [Authorize]
+        [Authorize]
         [HttpGet("{id}", Name = "Get")]
         public IActionResult GetById(long id)
         {

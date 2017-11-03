@@ -12,6 +12,7 @@ using JWT.Algorithms;
 using Microsoft.Extensions.Options;
 using System;
 using Zarasa.Editorial.Api.Data;
+using Zarasa.Editorial.Api.Common.Responses;
 // using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Zarasa.Editorial.Api.Controllers
@@ -41,19 +42,20 @@ namespace Zarasa.Editorial.Api.Controllers
         {
             if (ModelState.IsValid)
             {
-                var exists = _context.Users.Any(x => !x.is_deleted && x.email == Credentials.Email && x.password == Credentials.Password);
+                var exists = _context.Users.Any(x => !x.is_deleted && x.email == Credentials.username && x.password == Credentials.password);
                 if (exists)
                 {
-                    var user = _context.Users.Where(x => !x.is_deleted && x.email == Credentials.Email).FirstOrDefault();
-                    return new JsonResult(  new Dictionary<string, object>
+                    var user = _context.Users.Where(x => !x.is_deleted && x.email == Credentials.username).FirstOrDefault();
+                    var response = new Dictionary<string, object>
                     {
-                        { "access_token", GetAccessToken(Credentials.Email) },
-                        { "id_token", GetIdToken(user) }
-                    });
+                        // { "access_token", GetAccessToken(Credentials.email) },
+                        { "access_token", GetIdToken(user) }
+                    };
+                    return ObjectResponse(response, "Sign In successfully");
                 }
-                return new JsonResult("Unable to sign in") { StatusCode = 401 };
+                return ErrorResponse("Incorrect username or password");
             }
-            return Error("Unexpected error");
+            return ValidationFailed();
         }
 
         private string GetIdToken(User user)
@@ -72,7 +74,7 @@ namespace Zarasa.Editorial.Api.Controllers
         {
             var payload = new Dictionary<string, object>
             {
-                { "sub", Email },
+                // { "sub", Email },
                 { "email", Email }
             };
             return GetToken(payload);
@@ -87,6 +89,7 @@ namespace Zarasa.Editorial.Api.Controllers
             payload.Add("nbf", ConvertToUnixTimestamp(DateTime.Now));
             payload.Add("iat", ConvertToUnixTimestamp(DateTime.Now));
             payload.Add("exp", ConvertToUnixTimestamp(DateTime.Now.AddDays(7)));
+
             IJwtAlgorithm algorithm = new HMACSHA256Algorithm();
             IJsonSerializer serializer = new JsonNetSerializer();
             IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();

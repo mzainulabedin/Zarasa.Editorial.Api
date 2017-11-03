@@ -6,16 +6,12 @@ using Zarasa.Editorial.Api.Models;
 
 namespace Zarasa.Editorial.Api.Common.Responses
 {
-    public class EntityResponseModel<T> where T : Entity
+    public class EntityResponseModel<T> : ObjectResponseModel where T : Entity
     {
-        public string Message { get; }
-
-        public T Data { get; }
+        public new T Data { get; }
 
         public EntityResponseModel(T data, string message)
-        {
-            this.Message = message;
-            this.Data = data;
-        }
+            : base(data, message) => this.Data = data;
+        
     }
 }

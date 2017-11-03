@@ -7,21 +7,19 @@ using System.Collections;
 
 namespace Zarasa.Editorial.Api.Common.Responses
 {
-    public class EntityResponseList<T> where T : Entity
+    public class EntityResponseList<T> : ObjectResponseModel where T : Entity
     {
-        public string Message { get; }
-
         public int PageNumber { get; }
 
         public int PageSize { get; }
 
         public long TotalRecords { get; }
 
-        public IEnumerable<T> Data { get; }
+        public new IEnumerable<T> Data { get; }
 
         public EntityResponseList(IEnumerable<T> data, string message, int pageNumber, int pageSize, long totalRecords)
+            :base(data, message)
         {
-            this.Message = message;
             this.Data = data;
             this.PageNumber = pageNumber;
             this.PageSize = pageSize;
