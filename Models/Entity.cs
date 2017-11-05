@@ -31,5 +31,8 @@ namespace Zarasa.Editorial.Api.Models
         public bool is_deleted { get; set; }
         
         
+        public virtual void copy(Entity entity){
+
+        }
     }
 }

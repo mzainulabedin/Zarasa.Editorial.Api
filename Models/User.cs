@@ -39,5 +39,16 @@ namespace Zarasa.Editorial.Api.Models
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string password { get; set; }
+
+        public override void copy(Entity entity){
+            var user = (User)entity;
+            
+            this.first_name = user.first_name;
+            this.last_name = user.last_name;
+            this.email = user.email;
+            this.is_active = user.is_active;
+        }
     }
+
+    
 }

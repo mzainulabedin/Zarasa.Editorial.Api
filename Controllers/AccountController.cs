@@ -13,6 +13,8 @@ using Microsoft.Extensions.Options;
 using System;
 using Zarasa.Editorial.Api.Data;
 using Zarasa.Editorial.Api.Common.Responses;
+using Microsoft.EntityFrameworkCore;
+using Zarasa.Editorial.Api.Repository;
 // using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Zarasa.Editorial.Api.Controllers
@@ -20,32 +22,30 @@ namespace Zarasa.Editorial.Api.Controllers
     [Route("api/[controller]")]
     public class AccountController : EntityController<User>
     {
-        private readonly ApplicationDbContext _context;
-        // private readonly UserManager<User> _userManager;
-        // private readonly SignInManager<User> _signInManager;
+        
         private readonly JWTSettings _options;
 
-        public AccountController(
-            ApplicationDbContext context,
-        //   UserManager<User> userManager,
-        //   SignInManager<User> signInManager,
-          IOptions<JWTSettings> optionsAccessor)
-        {
-            _context = context;
-            // _userManager = userManager;
-            // _signInManager = signInManager;
-            _options = optionsAccessor.Value;
-        }
+        public AccountController(ApplicationDbContext context, IOptions<JWTSettings> optionsAccessor)
+            : base(context) => _options = optionsAccessor.Value;
+
+        // protected override DbSet<User> GetDbSet() => getContext().Users;
+        protected override EntityRepository<User> GetRepository() => new UserRepository(getContext());
+
+        // [HttpGet]
+        // public override IActionResult GetAll() => base.GetAll();
+
+        // [HttpGet("{id}", Name = "Get")]
+        // public override IActionResult GetById(long id) => base.GetById(id);
 
         [HttpPost("sign-in")]
         public async Task<IActionResult> SignIn([FromBody] Credentials Credentials)
         {
             if (ModelState.IsValid)
             {
-                var exists = _context.Users.Any(x => !x.is_deleted && x.email == Credentials.username && x.password == Credentials.password);
+                var exists = ((UserRepository)GetRepository()).CredentialExists(Credentials.username, Credentials.password);
                 if (exists)
                 {
-                    var user = _context.Users.Where(x => !x.is_deleted && x.email == Credentials.username).FirstOrDefault();
+                    var user = ((UserRepository)GetRepository()).GetByEmail(Credentials.username);
                     var response = new Dictionary<string, object>
                     {
                         // { "access_token", GetAccessToken(Credentials.email) },
@@ -63,9 +63,7 @@ namespace Zarasa.Editorial.Api.Controllers
             var payload = new Dictionary<string, object>
             {
                 { "id", user.id },
-                // { "sub", user.email },
                 { "email", user.email },
-                // { "emailConfirmed", user.EmailConfirmed },
             };
             return GetToken(payload);
         }
@@ -74,7 +72,6 @@ namespace Zarasa.Editorial.Api.Controllers
         {
             var payload = new Dictionary<string, object>
             {
-                // { "sub", Email },
                 { "email", Email }
             };
             return GetToken(payload);
