@@ -24,12 +24,16 @@ namespace Zarasa.Editorial.Api.Controllers
     {
         
         private readonly JWTSettings _options;
+        private readonly UserRepository _repository;
 
         public AccountController(ApplicationDbContext context, IOptions<JWTSettings> optionsAccessor)
-            : base(context) => _options = optionsAccessor.Value;
+            : base(context) { 
+                _options = optionsAccessor.Value; 
+            _repository = new UserRepository(context);
+        }
 
         // protected override DbSet<User> GetDbSet() => getContext().Users;
-        protected override EntityRepository<User> GetRepository() => new UserRepository(getContext());
+        protected override EntityRepository<User> GetRepository() => _repository;
 
         // [HttpGet]
         // public override IActionResult GetAll() => base.GetAll();
@@ -42,10 +46,10 @@ namespace Zarasa.Editorial.Api.Controllers
         {
             if (ModelState.IsValid)
             {
-                var exists = ((UserRepository)GetRepository()).CredentialExists(Credentials.username, Credentials.password);
+                var exists = _repository.CredentialExists(Credentials.username, Credentials.password);
                 if (exists)
                 {
-                    var user = ((UserRepository)GetRepository()).GetByEmail(Credentials.username);
+                    var user = _repository.GetByEmail(Credentials.username);
                     var response = new Dictionary<string, object>
                     {
                         // { "access_token", GetAccessToken(Credentials.email) },
