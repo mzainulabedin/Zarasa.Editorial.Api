@@ -22,7 +22,22 @@ namespace Zarasa.Editorial.Api.Repository
         protected abstract DbSet<T> GetDbSet();
 
 
-        public IEnumerable<T> Get() => GetDbSet().Where(x => !x.is_deleted).ToList();
+        public IEnumerable<T> Get(int? page, ref int? size, out long count)
+        {
+            var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
+            if(page != null && page != 0)
+            {
+                if(size == null || size == 0)
+                {
+                    size = 20;
+                }
+                count = query.Count();
+                query = query.Take(size.Value).Skip((page.Value - 1) * size.Value).AsQueryable();
+            } else {
+                count = 0;
+            }
+            return query.ToList();
+        }
 
         public T Get(long id) => GetDbSet().Where(x => x.id == id).FirstOrDefault();
 

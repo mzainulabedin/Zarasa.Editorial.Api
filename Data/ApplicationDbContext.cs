@@ -17,6 +17,7 @@ namespace Zarasa.Editorial.Api.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Journal> Journals { get; set; }
 
     }
 }

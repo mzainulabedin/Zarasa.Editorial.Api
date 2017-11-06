@@ -34,7 +34,7 @@ namespace Zarasa.Editorial.Api.Controllers
         protected override EntityRepository<User> GetRepository() => _repository;
 
         [HttpGet]
-        public override IActionResult GetAll() => base.GetAll();
+        public override IActionResult GetAll(int? page, int? size) => base.GetAll(page, size);
 
         [HttpGet("{id}", Name = "Get")]
         public override IActionResult GetById(long id) => base.GetById(id);

@@ -19,16 +19,13 @@ namespace Zarasa.Editorial.Api.Controllers
     
     public abstract class EntityController<T> : BaseContoller where T : Entity
     {
-        // protected abstract DbSet<T> GetDbSet();
         protected abstract EntityRepository<T> GetRepository();
 
         private readonly ApplicationDbContext _context;
-        // private readonly EntityRepository _repository
 
         public EntityController(ApplicationDbContext context)
         {
-            
-            // _context = context;
+            _context = context;
         } 
 
         protected ApplicationDbContext getContext() {
@@ -49,7 +46,7 @@ namespace Zarasa.Editorial.Api.Controllers
         }
 
         protected EntityResponseResult<T> EntityListResponse(IEnumerable<T> data, string message = "Record fetched successfully.", int pageNumber = 0, int pageSize = 0, long totalRecords = 0){
-             return new EntityResponseResult<T>(data, message);
+             return new EntityResponseResult<T>(data, message, pageNumber, pageSize, totalRecords);
         }
 
         protected ErrorResponseResult ErrorResponse(string errorMessage, int statusCode = StatusCodes.Status400BadRequest){
@@ -69,14 +66,13 @@ namespace Zarasa.Editorial.Api.Controllers
             return id;
         }
 
-        // [HttpGet]
-        public virtual IActionResult GetAll()
+        public virtual IActionResult GetAll(int? page, int? size)
         {
-            var entity =  GetRepository().Get();
-            return EntityListResponse(entity);
+            long count;
+            var data =  GetRepository().Get(page, ref size, out count);
+            return EntityListResponse(data, pageNumber: page==null?0:page.Value, pageSize:size==null?0:size.Value, totalRecords: count);
         }
 
-        // [HttpGet("{id}", Name = "Get")]
         public virtual IActionResult GetById(long id)
         {
             var entity = GetRepository().Get(id);
@@ -117,7 +113,6 @@ namespace Zarasa.Editorial.Api.Controllers
             return result;
         }
 
-        // [HttpPut("{id}")]
         public virtual IActionResult Update(long id, [FromBody] T updatedEntity)
         {
             IActionResult result = null;
@@ -149,7 +144,6 @@ namespace Zarasa.Editorial.Api.Controllers
         }
 
         
-        // [HttpDelete("{id}")]
         public virtual IActionResult Delete(long id)
         {
             IActionResult result = null;
