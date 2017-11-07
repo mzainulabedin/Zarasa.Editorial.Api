@@ -32,7 +32,7 @@ namespace Zarasa.Editorial.Api.Repository
                     size = 20;
                 }
                 count = query.Count();
-                query = query.Take(size.Value).Skip((page.Value - 1) * size.Value).AsQueryable();
+                query = query.Skip((page.Value - 1) * size.Value).Take(size.Value).AsQueryable();
             } else {
                 count = 0;
             }

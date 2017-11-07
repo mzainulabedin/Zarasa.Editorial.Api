@@ -20,6 +20,7 @@ namespace Zarasa.Editorial.Api.Controllers
 
         protected override EntityRepository<Journal> GetRepository() => _repository;
 
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult GetAll(string name, int? page, int? size) { 
             long count;
