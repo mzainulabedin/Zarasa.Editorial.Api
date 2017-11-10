@@ -4,10 +4,10 @@ using Zarasa.Editorial.Api.Models;
 
 namespace Zarasa.Editorial.Api.Common.EventArgs
 {
-    public class CreateValidationEventArgs1<T> : System.EventArgs
+    public class CreateValidationEventArgs<T> : System.EventArgs
     {
         private T _Model;
-        public CreateValidationEventArgs1(T model){
+        public CreateValidationEventArgs(T model){
             this._Model = model;
         }
         public T Model { 

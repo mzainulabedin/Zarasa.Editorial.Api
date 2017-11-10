@@ -41,22 +41,25 @@ namespace Zarasa.Editorial.Api.Repository
 
         public T Get(long id) => GetDbSet().Where(x => x.id == id).FirstOrDefault();
 
-        public T Create(T entity, long currentUserId) {
-            entity.created_by = currentUserId;
+        public T Create(T entity, long? currentUserId = null) {
+            if(currentUserId.HasValue){
+                entity.created_by = currentUserId;
+            }
             GetDbSet().Add(entity);
             getContext().SaveChanges();
             return entity;
         }
 
-        public T Update(long id, T updatedEntity, long currentUserId) {
+        public T Update(long id, T updatedEntity, long? currentUserId = null) {
             var entity = Get(id);
             if (entity == null)
             {
                 throw new Exception("Record not Exists");
             }
             entity.copy(updatedEntity);
-                
-            entity.updated_at = DateTime.UtcNow;
+            if(currentUserId.HasValue){    
+                entity.updated_at = DateTime.UtcNow;
+            }
             entity.updated_by = currentUserId;
 
             GetDbSet().Update(entity);

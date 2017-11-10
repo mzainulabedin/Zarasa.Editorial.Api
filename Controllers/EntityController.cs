@@ -14,7 +14,7 @@ using Zarasa.Editorial.Api.Repository;
 
 namespace Zarasa.Editorial.Api.Controllers
 {
-    public delegate void CreatingValidationEventHandler<T>(CreateValidationEventArgs1<T> e);
+    public delegate void CreatingValidationEventHandler<T>(CreateValidationEventArgs<T> e);
     public delegate void UpdatingValidationEventHandler<T>(UpdateValidationEventArgs<T> e);
     
     public abstract class EntityController<T> : BaseContoller where T : Entity
@@ -98,7 +98,7 @@ namespace Zarasa.Editorial.Api.Controllers
                 }
                 if (result==null)
                 {
-                    var validationEventArgs = new CreateValidationEventArgs1<T>(newEntity);
+                    var validationEventArgs = new CreateValidationEventArgs<T>(newEntity);
                     OnCreatingValidation(validationEventArgs);
                     result = validationEventArgs.ActionResult;
                 }            
@@ -160,7 +160,7 @@ namespace Zarasa.Editorial.Api.Controllers
 
         public event CreatingValidationEventHandler<T> CreatingValidation;
 
-        protected virtual void OnCreatingValidation(CreateValidationEventArgs1<T> e)
+        protected virtual void OnCreatingValidation(CreateValidationEventArgs<T> e)
         {
             CreatingValidationEventHandler<T> handler = CreatingValidation;
             if (handler != null)

@@ -43,7 +43,7 @@ namespace Zarasa.Editorial.Api.Controllers
         public override IActionResult Create([FromBody] User entity) => base.Create(entity);
         
 
-        protected override void OnCreatingValidation(CreateValidationEventArgs1<User> e){
+        protected override void OnCreatingValidation(CreateValidationEventArgs<User> e){
             if(_repository.EmailExists(e.Model.email))
             {
                 e.ActionResult = ValidationFailed("email", "Email can not be duplicate");

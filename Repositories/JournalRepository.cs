@@ -17,7 +17,9 @@ namespace Zarasa.Editorial.Api.Repository
         
         public IEnumerable<Journal> GetByName(string name, int? page, ref int? size, out long count)
         {
-            var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
+            var query = GetDbSet().Where(x => !x.is_deleted 
+                && x.status == Journal.JournalStatus.Active).AsQueryable();
+                
             if (name != null)
             {
                 query = query.Where(x => x.name.Contains(name)).AsQueryable();

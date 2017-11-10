@@ -1,6 +1,6 @@
-namespace Zarasa.Editorial.Api
-{
-    internal class ApplicationUser
-    {
-    }
-}
+// namespace Zarasa.Editorial.Api
+// {
+//     internal class ApplicationUser
+//     {
+//     }
+// }
