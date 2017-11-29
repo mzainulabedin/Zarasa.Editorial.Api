@@ -1,6 +1,6 @@
 using System;
 
-namespace Zarasa.Editorial.Api.Models
+namespace Zarasa.Editorial.Api.Helper
 {
     public class JWTSettings
     {

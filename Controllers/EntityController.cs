@@ -57,6 +57,10 @@ namespace Zarasa.Editorial.Api.Controllers
             return new ObjectResponseResult(data, message);
         }
 
+        protected ObjectResponseResult MessageResponse(string message){
+            return new ObjectResponseResult(true, message);
+        }
+
         protected string GetCurrentUserId()
         {
             string id = null;

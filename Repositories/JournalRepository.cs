@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -15,10 +16,14 @@ namespace Zarasa.Editorial.Api.Repository
         protected override DbSet<Journal> GetDbSet() => getContext().Journals;
 
         
-        public IEnumerable<Journal> GetByName(string name, int? page, ref int? size, out long count)
+        public IEnumerable<Journal> GetByName(string name, Journal.JournalStatus? status, int? page, ref int? size, out long count)
         {
-            var query = GetDbSet().Where(x => !x.is_deleted 
-                && x.status == Journal.JournalStatus.Active).AsQueryable();
+            var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
+            if(status.HasValue && status.Value == Journal.JournalStatus.Panding){
+                query = query.Where(x => x.status == Journal.JournalStatus.Panding).AsQueryable();
+            } else {
+                query = query.Where(x => x.status == Journal.JournalStatus.Active).AsQueryable();
+            }
                 
             if (name != null)
             {
@@ -36,6 +41,22 @@ namespace Zarasa.Editorial.Api.Repository
                 count = 0;
             }
             return query.ToList();
+        }
+
+        public Journal Activate(long id, long currentUserId) {
+            var entity = Get(id);
+            if (entity == null)
+            {
+                throw new Exception("Record not Exists");
+            }
+            entity.status = Journal.JournalStatus.Active;
+            entity.updated_at = DateTime.UtcNow;
+            entity.updated_by = currentUserId;
+
+            GetDbSet().Update(entity);
+            getContext().SaveChanges();
+
+            return entity;
         }
     }
 }

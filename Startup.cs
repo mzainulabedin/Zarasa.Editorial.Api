@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Zarasa.Editorial.Api.Models;
+using Zarasa.Editorial.Api.Helper;
 
 namespace Zarasa.Editorial.Api
 {
@@ -33,10 +34,13 @@ namespace Zarasa.Editorial.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<JWTSettings>(Configuration.GetSection("JWTSettings"));
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.Configure<ClientSettings>(Configuration.GetSection("ClientSettings"));
 
             services.AddCors();
             services.AddMvc();
             services.AddDbContext<ApplicationDbContext>(opt => opt.UseMySql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddTransient<IEmailSender, AuthMessageSender>();
 
             var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration["JWTSettings:SecretKey"]));
             var tokenValidationParameters = new TokenValidationParameters

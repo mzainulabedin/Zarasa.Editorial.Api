@@ -15,6 +15,7 @@ using Zarasa.Editorial.Api.Data;
 using Zarasa.Editorial.Api.Common.Responses;
 using Microsoft.EntityFrameworkCore;
 using Zarasa.Editorial.Api.Repository;
+using Zarasa.Editorial.Api.Helper;
 // using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Zarasa.Editorial.Api.Controllers
@@ -50,10 +51,11 @@ namespace Zarasa.Editorial.Api.Controllers
                 if (exists)
                 {
                     var user = _repository.GetByEmail(Credentials.username);
+                    var jwt = new JWTHelper(_options);
                     var response = new Dictionary<string, object>
                     {
                         // { "access_token", GetAccessToken(Credentials.email) },
-                        { "access_token", GetIdToken(user) }
+                        { "access_token", jwt.GetIdToken(user) }
                     };
                     return ObjectResponse(response, "Sign In successfully");
                 }
@@ -62,61 +64,21 @@ namespace Zarasa.Editorial.Api.Controllers
             return ValidationFailed();
         }
 
-        private string GetIdToken(User user)
-        {
-            var payload = new Dictionary<string, object>
-            {
-                { "id", user.id },
-                { "email", user.email },
-            };
-            return GetToken(payload);
-        }
+        
 
-        private string GetAccessToken(string Email)
-        {
-            var payload = new Dictionary<string, object>
-            {
-                { "email", Email }
-            };
-            return GetToken(payload);
-        }
+        // private JsonResult Errors(IdentityResult result)
+        // {
+        //     var items = result.Errors
+        //         .Select(x => x.Description)
+        //         .ToArray();
+        //     return new JsonResult(items) { StatusCode = 400 };
+        // }
 
-        private string GetToken(Dictionary<string, object> payload)
-        {
-            var secret = _options.SecretKey;
+        // private JsonResult Error(string message)
+        // {
+        //     return new JsonResult(message) { StatusCode = 400 };
+        // }
 
-            payload.Add("iss", _options.Issuer);
-            payload.Add("aud", _options.Audience);
-            payload.Add("nbf", ConvertToUnixTimestamp(DateTime.Now));
-            payload.Add("iat", ConvertToUnixTimestamp(DateTime.Now));
-            payload.Add("exp", ConvertToUnixTimestamp(DateTime.Now.AddDays(7)));
-
-            IJwtAlgorithm algorithm = new HMACSHA256Algorithm();
-            IJsonSerializer serializer = new JsonNetSerializer();
-            IBase64UrlEncoder urlEncoder = new JwtBase64UrlEncoder();
-            IJwtEncoder encoder = new JwtEncoder(algorithm, serializer, urlEncoder);
-
-            return encoder.Encode(payload, secret);
-        }
-
-        private JsonResult Errors(IdentityResult result)
-        {
-            var items = result.Errors
-                .Select(x => x.Description)
-                .ToArray();
-            return new JsonResult(items) { StatusCode = 400 };
-        }
-
-        private JsonResult Error(string message)
-        {
-            return new JsonResult(message) { StatusCode = 400 };
-        }
-
-        private static double ConvertToUnixTimestamp(DateTime date)
-        {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            TimeSpan diff = date.ToUniversalTime() - origin;
-            return Math.Floor(diff.TotalSeconds);
-        }
+        
     }
 }
