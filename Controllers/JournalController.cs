@@ -45,17 +45,17 @@ namespace Zarasa.Editorial.Api.Controllers
         }
 
         [HttpGet("get-pending")]
-        public IActionResult GetAllPending(string name, int? page, int? size) { 
+        public IActionResult GetAllPending(string searchString, string orderBy, string orderByDirection, int? page, int? size) { 
             long count;
-            var data = _repository.GetByName(name, Journal.JournalStatus.Panding, page, ref size, out count);
+            var data = _repository.GetByName(searchString, orderBy, orderByDirection, Journal.JournalStatus.Panding, page, ref size, out count);
             return EntityListResponse(data, pageNumber:page==null?0:page.Value, pageSize:size==null?0:size.Value, totalRecords:count);
         }
 
         [AllowAnonymous]
         [HttpGet]
-        public IActionResult GetAllActive(string name, int? page, int? size) { 
+        public IActionResult GetAllActive(string searchString, string orderBy, string orderByDirection, int? page, int? size) { 
             long count;
-            var data = _repository.GetByName(name, Journal.JournalStatus.Active, page, ref size, out count);
+            var data = _repository.GetByName(searchString, orderBy, orderByDirection, Journal.JournalStatus.Active, page, ref size, out count);
             return EntityListResponse(data, pageNumber:page==null?0:page.Value, pageSize:size==null?0:size.Value, totalRecords:count);
         }
 

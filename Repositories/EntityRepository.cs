@@ -27,25 +27,37 @@ namespace Zarasa.Editorial.Api.Repository
 
         public IEnumerable<T> Get(string searchString, string orderBy, string orderByDirection, int? page, ref int? size, out long count)
         {
+            var query = GetQuery(searchString, orderBy, orderByDirection);
+            
+            query = paging(query, page, ref size, out count);
+            
+            return query.ToList();
+        }
+
+        protected IQueryable<T> GetQuery(string searchString, string orderBy, string orderByDirection)
+        {
             var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
             
             var searchEventArgs = new SearchEventArgs<T>(query, searchString, orderBy, orderByDirection);
             OnSearch(searchEventArgs);
             query = searchEventArgs.Query;
             
+            return query;
+        }
+
+        protected IQueryable<T> paging(IQueryable<T> queryable, int? page, ref int? size, out long count){
             if(page != null && page != 0)
             {
                 if(size == null || size == 0)
                 {
                     size = 20;
                 }
-                count = query.Count();
-                query = query.Skip((page.Value - 1) * size.Value).Take(size.Value).AsQueryable();
+                count = queryable.Count();
+                queryable = queryable.Skip((page.Value - 1) * size.Value).Take(size.Value).AsQueryable();
             } else {
                 count = 0;
             }
-            
-            return query.ToList();
+            return queryable;
         }
 
         public event SearchEventHandler<T> searchEventHandler;

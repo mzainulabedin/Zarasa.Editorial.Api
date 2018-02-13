@@ -4,6 +4,8 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Zarasa.Editorial.Api.Data;
 using Zarasa.Editorial.Api.Models;
+using Zarasa.Editorial.Api.Common.Extensions;
+using Zarasa.Editorial.Api.Common.EventArgs;
 
 namespace Zarasa.Editorial.Api.Repository
 {
@@ -16,30 +18,18 @@ namespace Zarasa.Editorial.Api.Repository
         protected override DbSet<Journal> GetDbSet() => getContext().Journals;
 
         
-        public IEnumerable<Journal> GetByName(string name, Journal.JournalStatus? status, int? page, ref int? size, out long count)
+        public IEnumerable<Journal> GetByName(string searchString, string orderBy, string orderByDirection, Journal.JournalStatus? status, int? page, ref int? size, out long count)
         {
-            var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
+            var query = GetQuery(searchString, orderBy, orderByDirection);
+
             if(status.HasValue && status.Value == Journal.JournalStatus.Panding){
                 query = query.Where(x => x.status == Journal.JournalStatus.Panding).AsQueryable();
             } else {
                 query = query.Where(x => x.status == Journal.JournalStatus.Active).AsQueryable();
             }
-                
-            if (name != null)
-            {
-                query = query.Where(x => x.name.Contains(name)).AsQueryable();
-            }
-            if(page != null && page != 0)
-            {
-                if(size == null || size == 0)
-                {
-                    size = 20;
-                }
-                count = query.Count();
-                query = query.Skip((page.Value - 1) * size.Value).Take(size.Value).AsQueryable();
-            } else {
-                count = 0;
-            }
+            
+            query = paging(query, page, ref size, out count);
+
             return query.ToList();
         }
 
@@ -57,6 +47,21 @@ namespace Zarasa.Editorial.Api.Repository
             getContext().SaveChanges();
 
             return entity;
+        }
+
+        protected override void OnSearch(Common.EventArgs.SearchEventArgs<Journal> e) 
+        {
+            if(! string.IsNullOrWhiteSpace(e.SearchString)) 
+            {
+                e.Query = e.Query.Where(x => x.name.Contains(e.SearchString) || x.organization_name.Contains(e.SearchString) || x.detail.Contains(e.SearchString));
+            }
+            if(!string.IsNullOrEmpty(e.OrderBy))
+            {
+                if((new string[]{"name", "organization_name", "detail"}).Contains(e.OrderBy.ToLower()))
+                {
+                    e.Query = e.Query.OrderBy(e.OrderBy.ToLower(), e.OrderByDirection.ToLower());
+                }
+            }
         }
     }
 }
