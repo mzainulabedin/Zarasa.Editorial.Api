@@ -70,14 +70,14 @@ namespace Zarasa.Editorial.Api.Controllers
             return id;
         }
 
-        public virtual IActionResult GetAll(int? page, int? size)
+        public virtual IActionResult Get(string searchString, string orderBy, string orderByDirection, int? page, int? size)
         {
             long count;
-            var data =  GetRepository().Get(page, ref size, out count);
+            var data =  GetRepository().Get(searchString, orderBy, orderByDirection, page, ref size, out count);
             return EntityListResponse(data, pageNumber: page==null?0:page.Value, pageSize:size==null?0:size.Value, totalRecords: count);
         }
 
-        public virtual IActionResult GetById(long id)
+        public virtual IActionResult Get(long id)
         {
             var entity = GetRepository().Get(id);
             if (entity == null)

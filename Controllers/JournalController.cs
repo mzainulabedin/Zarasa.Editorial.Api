@@ -38,9 +38,9 @@ namespace Zarasa.Editorial.Api.Controllers
         protected override EntityRepository<Journal> GetRepository() => _repository;
 
         [HttpGet("get-all")]
-        public override IActionResult GetAll(int? page, int? size) { 
+        public override IActionResult Get(string searchString, string orderBy, string orderByDirection, int? page, int? size) { 
             long count;
-            var data = _repository.Get(page, ref size, out count);
+            var data = _repository.Get(searchString, orderBy, orderByDirection, page, ref size, out count);
             return EntityListResponse(data, pageNumber:page==null?0:page.Value, pageSize:size==null?0:size.Value, totalRecords:count);
         }
 
@@ -86,7 +86,7 @@ namespace Zarasa.Editorial.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public override IActionResult GetById(long id) => base.GetById(id);
+        public override IActionResult Get(long id) => base.Get(id);
 
         [HttpPost]
         public override IActionResult Create([FromBody] Journal entity) => base.Create(entity);

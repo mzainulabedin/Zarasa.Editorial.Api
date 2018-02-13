@@ -34,10 +34,10 @@ namespace Zarasa.Editorial.Api.Controllers
         protected override EntityRepository<User> GetRepository() => _repository;
 
         [HttpGet]
-        public override IActionResult GetAll(int? page, int? size) => base.GetAll(page, size);
+        public override IActionResult Get(string searchString, string orderBy, string orderByDirection, int? page, int? size) => base.Get(searchString, orderBy, orderByDirection, page, size);
 
         [HttpGet("{id}", Name = "Get")]
-        public override IActionResult GetById(long id) => base.GetById(id);
+        public override IActionResult Get(long id) => base.Get(id);
 
         [HttpPost]
         public override IActionResult Create([FromBody] User entity) => base.Create(entity);

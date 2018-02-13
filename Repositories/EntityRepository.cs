@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Microsoft.EntityFrameworkCore;
+using Zarasa.Editorial.Api.Common.EventArgs;
 using Zarasa.Editorial.Api.Data;
 using Zarasa.Editorial.Api.Models;
 
 namespace Zarasa.Editorial.Api.Repository
 {
+    public delegate void SearchEventHandler<T>(SearchEventArgs<T> e);
+
     public abstract class EntityRepository<T> where T : Entity
     {
 
@@ -22,9 +25,14 @@ namespace Zarasa.Editorial.Api.Repository
         protected abstract DbSet<T> GetDbSet();
 
 
-        public IEnumerable<T> Get(int? page, ref int? size, out long count)
+        public IEnumerable<T> Get(string searchString, string orderBy, string orderByDirection, int? page, ref int? size, out long count)
         {
             var query = GetDbSet().Where(x => !x.is_deleted).AsQueryable();
+            
+            var searchEventArgs = new SearchEventArgs<T>(query, searchString, orderBy, orderByDirection);
+            OnSearch(searchEventArgs);
+            query = searchEventArgs.Query;
+            
             if(page != null && page != 0)
             {
                 if(size == null || size == 0)
@@ -36,7 +44,18 @@ namespace Zarasa.Editorial.Api.Repository
             } else {
                 count = 0;
             }
+            
             return query.ToList();
+        }
+
+        public event SearchEventHandler<T> searchEventHandler;
+        protected virtual void OnSearch(SearchEventArgs<T> e)
+        {
+            SearchEventHandler<T> handler = searchEventHandler;
+            if (handler != null)
+            {
+                handler(e);
+            }
         }
 
         public T Get(long id) => GetDbSet().Where(x => x.id == id).FirstOrDefault();
